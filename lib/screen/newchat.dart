@@ -56,7 +56,7 @@ class _NewChatState extends State<NewChat> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'CHAT',
+          'RECEP-AI',
           style: TextStyle(letterSpacing: 10),
         ),
       ),
