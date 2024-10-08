@@ -41,17 +41,37 @@ dependencies:
   flutter_dotenv: ^5.1.0
   http: ^1.2.2
   google_generative_ai: ^0.4.6
-  
+  flutter_native_splash: ^2.4.1
+
+flutter_native_splash:
+  android: true
+  ios: true
+  web: false
+
+  # Background color and image for all Android versions and iOS
+  color: "#FFFFFF"
+  image: "assets/icon.png"
+
+  # Android 12+ specific configuration
+  android_12:
+    color: "#FFFFFF"  # Background color for Android 12+ splash
+    image: "assets/icon.png"  # Same image for Android 12+ splash
+
+  # Dark mode splash screen (optional)
+  color_dark: "#FFFFFF"
+  image_dark: "assets/icon.png"  
   
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.14.1
+  flutter_launcher_icons: "^0.14.1"
+  
 
 flutter_launcher_icons:
   android: "launcher_icon"
-  image_path: "recipeai/assets/download (4).png"
+  ios: true
+  image_path: "assets/icon.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -75,6 +95,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - .env
+    - assets/icon.png
     
 
   # An image asset can refer to one or more resolution-specific "variants", see
