@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class NewChat extends StatefulWidget {
   @override
@@ -12,6 +13,9 @@ class _NewChatState extends State<NewChat> {
   final TextEditingController _controller = TextEditingController();
   String _response = '';
   List<String> _ingredients = []; 
+  String? _link ;
+  YoutubePlayerController? _youtubeController; 
+
 
   void _sendRequest() async {
     setState(() {
@@ -19,7 +23,8 @@ class _NewChatState extends State<NewChat> {
     });
 
     
-    String prompt = _ingredients.join(', ') + ' give me a recipe';
+    String prompt = _ingredients.join(', ') + ' give me a recipe, the a relevant youtube link is 100% necessary';
+    print(prompt);
     final model = GenerativeModel(
       model: 'gemini-1.5-flash',
       apiKey: dotenv.env['TOKEN'] ?? '',
@@ -28,19 +33,48 @@ class _NewChatState extends State<NewChat> {
     
     final response = await model.generateContent([Content.text(prompt)]);
     String formattedResponse = response.text?.replaceAll('*', '').trim() ?? 'No response';
+    print(formattedResponse.toString());
+
+    String? extractlink(String formattedResponse)
+    {
+      final RegExp regExp = RegExp(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})',
+      caseSensitive: false,
+      multiLine: false,
+    );
+    final link = regExp.firstMatch(formattedResponse);
+    return link != null ? link.group(0) : null;
+    }
+    
+    
+    final link = extractlink(formattedResponse);
+    print(link.toString());
+    String id = YoutubePlayer.convertUrlToId("https://youtu.be/dQw4w9WgXcQ?si=0nmewzhkOApBHAwS").toString();
+    print(id.toString());
+
+        if(link != null)
+        {
+         _youtubeController = YoutubePlayerController(
+          initialVideoId: id ,
+          flags: YoutubePlayerFlags(
+            controlsVisibleAtStart: true,
+          )
+          );
+  }
     
     setState(() {
       _response = formattedResponse;
+      _link = link ;
       _ingredients.clear();
     });
   }
+  
 
   void _addIngredient() {
     String input = _controller.text;
     if (input.isNotEmpty) {
       setState(() {
         _ingredients.add(input);
-        _controller.clear(); // Clear the text field after adding
+        _controller.clear(); 
       });
       
     }
@@ -63,6 +97,8 @@ class _NewChatState extends State<NewChat> {
       body: Column(
         children: [
           SizedBox(height: 10),
+
+
           Expanded(
             child: SingleChildScrollView(
               child: Container(
@@ -74,9 +110,18 @@ class _NewChatState extends State<NewChat> {
                 ),
                 child: Container(
                   padding: EdgeInsets.all(5),
-                  child: Text(
-                    _response.isEmpty ? 'Start chatting!' : _response,
-                  ),
+                  child: 
+                    _response.isEmpty ? Text('Start chatting!') : Column(
+                      children: [
+                        if(_link != null && _youtubeController!= null)
+                        YoutubePlayer(controller: _youtubeController!,
+                        showVideoProgressIndicator: true,
+                        ),
+                        
+                        Text(_response),
+                      ],
+                    ),
+                  
                 ),
               ),
             ),
