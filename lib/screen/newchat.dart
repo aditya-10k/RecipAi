@@ -12,17 +12,29 @@ class NewChat extends StatefulWidget {
 class _NewChatState extends State<NewChat> {
   final TextEditingController _controller = TextEditingController();
   String _response = '';
-  List<String> _ingredients = []; 
-  String? _link ;
-  YoutubePlayerController? _youtubeController; 
+  List<String> _ingredients = [];
+  String? _link;
+  late YoutubePlayerController _youtubeController;
+  final defaultLink = "https://youtu.be/dQw4w9WgXcQ?si=MBYyj9Jc4Isoxyo0";
 
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the YouTube controller with the default video ID
+    final vidid = YoutubePlayer.convertUrlToId(defaultLink);
+    _youtubeController = YoutubePlayerController(
+      initialVideoId: vidid!,
+      flags: YoutubePlayerFlags(
+        controlsVisibleAtStart: true,
+      ),
+    );
+  }
 
   void _sendRequest() async {
     setState(() {
       _response = "Working on it...may take a few seconds";
     });
 
-    
     String prompt = _ingredients.join(', ') + ' give me a recipe, the a relevant youtube link is 100% necessary';
     print(prompt);
     final model = GenerativeModel(
@@ -30,53 +42,24 @@ class _NewChatState extends State<NewChat> {
       apiKey: dotenv.env['TOKEN'] ?? '',
     );
 
-    
     final response = await model.generateContent([Content.text(prompt)]);
     String formattedResponse = response.text?.replaceAll('*', '').trim() ?? 'No response';
     print(formattedResponse.toString());
 
-    String? extractlink(String formattedResponse)
-    {
-      final RegExp regExp = RegExp(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})',
-      caseSensitive: false,
-      multiLine: false,
-    );
-    final link = regExp.firstMatch(formattedResponse);
-    return link != null ? link.group(0) : null;
-    }
-    
-    
-    final link = extractlink(formattedResponse);
-    print(link.toString());
-    String id = YoutubePlayer.convertUrlToId("https://youtu.be/dQw4w9WgXcQ?si=0nmewzhkOApBHAwS").toString();
-    print(id.toString());
-
-        if(link != null)
-        {
-         _youtubeController = YoutubePlayerController(
-          initialVideoId: id ,
-          flags: YoutubePlayerFlags(
-            controlsVisibleAtStart: true,
-          )
-          );
-  }
-    
     setState(() {
       _response = formattedResponse;
-      _link = link ;
+      _link = defaultLink; 
       _ingredients.clear();
     });
   }
-  
 
   void _addIngredient() {
     String input = _controller.text;
     if (input.isNotEmpty) {
       setState(() {
         _ingredients.add(input);
-        _controller.clear(); 
+        _controller.clear();
       });
-      
     }
   }
 
@@ -98,30 +81,49 @@ class _NewChatState extends State<NewChat> {
         children: [
           SizedBox(height: 10),
 
+          // Youtube Player
+          // YoutubePlayer(
+          //   controller: _youtubeController,
+          //   showVideoProgressIndicator: true,
+          // ),
 
           Expanded(
             child: SingleChildScrollView(
               child: Container(
-                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: backgroundColor,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Container(
                   padding: EdgeInsets.all(5),
-                  child: 
-                    _response.isEmpty ? Text('Start chatting!') : Column(
-                      children: [
-                        if(_link != null && _youtubeController!= null)
-                        YoutubePlayer(controller: _youtubeController!,
-                        showVideoProgressIndicator: true,
+                  child: Column(
+                    children: [
+                      if (_response.isEmpty)
+                        Text('Start chatting!')
+                      else
+                        Column(
+                          children: [
+                
+                            Text(_response), 
+                             SizedBox(height: 10),
+                            if (_link != null)
+                              Container(
+                                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                                child: YoutubePlayer(
+                                  controller: _youtubeController,
+                                  showVideoProgressIndicator: true,
+                                  //progressColors: ProgressBarColors(),
+                                ),
+                              ),
+                          ],
                         ),
-                        
-                        Text(_response),
-                      ],
-                    ),
-                  
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -175,25 +177,22 @@ class _NewChatState extends State<NewChat> {
                             ),
                           ),
                           hintText: 'Type ingredient',
-                    
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min, 
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.add),
-                          onPressed: _addIngredient,
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.add),
+                                onPressed: _addIngredient,
+                              ),
+                              IconButton(
+                                icon: Icon(AntDesign.arrow_up_outline),
+                                onPressed: _sendRequest,
+                              ),
+                            ],
+                          ),
                         ),
-                        IconButton(
-                          icon: Icon(AntDesign.arrow_up_outline),
-                          onPressed: _sendRequest,
-                        ),
-                      ],
-                    ),
-                        ),
-                        
                       ),
                     ),
-                    
                   ],
                 ),
               ],
