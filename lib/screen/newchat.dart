@@ -69,14 +69,7 @@ class _NewChatState extends State<NewChat> {
     Color backgroundColor = isDarkMode ? Colors.grey[900]! : Colors.grey[300]!;
 
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'RECEP-AI',
-          style: TextStyle(letterSpacing: 10),
-        ),
-      ),
+      
       body: Column(
         children: [
           SizedBox(height: 10),

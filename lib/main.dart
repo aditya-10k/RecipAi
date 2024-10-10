@@ -8,8 +8,15 @@ Future<void> main() async {
   runApp( MyApp());  
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.light ;
 
   // This widget is the root of your application.
   @override
@@ -19,11 +26,18 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: lightTheme(context),
       darkTheme: darkTheme(context),
-      themeMode: ThemeMode.dark,
-      //themeMode: ThemeMode.light,
-      home: Homescreen(),
+      themeMode: _themeMode,
+      
+      home: Homescreen(onThemeChanged: _toggletheme, themeMode: _themeMode,),
   
       );
   }
+
+  void _toggletheme(){
+    setState(() {
+       _themeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
+
 }
-        
+      

@@ -5,13 +5,17 @@ import 'package:recipeai/screen/chathistory.dart';
 import 'package:recipeai/screen/newchat.dart';
 
 class Homescreen extends StatefulWidget {
-  const Homescreen({super.key});
+   Homescreen({super.key, required this.onThemeChanged, required this.themeMode });
+    final VoidCallback onThemeChanged;
+  final ThemeMode themeMode;
 
   @override
   State<Homescreen> createState() => _HomescreenState();
 }
 
 class _HomescreenState extends State<Homescreen> {
+
+  
 
 final List<Widget> screen = [
 NewChat(),
@@ -30,6 +34,17 @@ final PageController _controller = PageController(initialPage: 0);
     Color backgroundColor = isDarkMode ? Colors.grey[900]! : Colors.grey[300]!;
 
     return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'RECEP-AI',
+          style: TextStyle(letterSpacing: 10),
+        ),
+         leading: IconButton(onPressed: widget.onThemeChanged ,
+          
+         icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),),
+      ),
 
       body: PageView(
         children: screen,
