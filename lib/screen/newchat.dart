@@ -84,7 +84,7 @@ class _NewChatState extends State<NewChat> {
             child: SingleChildScrollView(
               child: Container(
                 padding: EdgeInsets.all(10),
-                margin: EdgeInsets.all(10),
+                margin: EdgeInsets.all(11),
                 decoration: BoxDecoration(
                   color: backgroundColor,
                   borderRadius: BorderRadius.circular(20),
